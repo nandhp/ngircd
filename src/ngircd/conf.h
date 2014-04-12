@@ -238,6 +238,9 @@ GLOBAL int Conf_MaxListSize;
 /** Require "AUTH PING-PONG" on login */
 GLOBAL bool Conf_AuthPing;
 
+/** Enable Connection statistics messages on disconnect */
+GLOBAL bool Conf_SendStatistics;
+
 #endif
 
 #ifdef SYSLOG

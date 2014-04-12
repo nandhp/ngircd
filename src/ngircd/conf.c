@@ -427,6 +427,7 @@ Conf_Test( void )
 #endif
 #ifndef STRICT_RFC
 	printf("  RequireAuthPing = %s\n", yesno_to_str(Conf_AuthPing));
+	printf("  SendStatistics = %s\n", yesno_to_str(Conf_SendStatistics));
 #endif
 	printf("  ScrubCTCP = %s\n", yesno_to_str(Conf_ScrubCTCP));
 #ifdef SYSLOG
@@ -778,6 +779,7 @@ Set_Defaults(bool InitServers)
 	Conf_AllowRemoteOper = false;
 #ifndef STRICT_RFC
 	Conf_AuthPing = false;
+	Conf_SendStatistics = true;
 #endif
 	strlcpy(Conf_Chroot, CHROOT_DIR, sizeof(Conf_Chroot));
 	strcpy(Conf_CloakHost, "");
@@ -1829,6 +1831,10 @@ Handle_OPTIONS(const char *File, int Line, char *Var, char *Arg)
 #ifndef STRICT_RFC
 	if (strcasecmp(Var, "RequireAuthPing") == 0) {
 		Conf_AuthPing = Check_ArgIsTrue(Arg);
+		return;
+	}
+	if (strcasecmp(Var, "SendStatistics") == 0) {
+		Conf_SendStatistics = Check_ArgIsTrue(Arg);
 		return;
 	}
 #endif

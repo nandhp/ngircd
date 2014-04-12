@@ -1204,7 +1204,8 @@ Conn_Close( CONN_ID Idx, const char *LogMsg, const char *FwdMsg, bool InformClie
 	if (InformClient) {
 #ifndef STRICT_RFC
 		/* Send statistics to client if registered as user: */
-		if ((c != NULL) && (Client_Type(c) == CLIENT_USER)) {
+		if (Conf_SendStatistics &&
+		    (c != NULL) && (Client_Type(c) == CLIENT_USER)) {
 			Conn_WriteStr( Idx,
 			 ":%s NOTICE %s :%sConnection statistics: client %.1f kb, server %.1f kb.",
 			 Client_ID(Client_ThisServer()), Client_ID(c),
