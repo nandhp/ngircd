@@ -43,6 +43,8 @@
 
 #include "exp.h"
 
+#include "parse.h"
+#include "irc-channel.h"
 
 #define REMOVE_PART 0
 #define REMOVE_QUIT 1
@@ -926,6 +928,35 @@ Channel_Write(CHANNEL *Chan, CLIENT *From, CLIENT *Client, const char *Command,
 		else
 			return IRC_WriteErrClient(From, ERR_CANNOTSENDTOCHAN_MSG,
 					  Client_ID(From), Channel_Name(Chan));
+	}
+
+	/* Handle +U (universal channel) */
+	if (Channel_HasMode(Chan, 'U')) {
+		CLIENT *c;
+		REQUEST r;
+
+		/* Channel_Name returns const, but REQUEST isn't. */
+		char channame[CHANNEL_NAME_LEN], chankey[CLIENT_PASS_LEN];
+		strncpy(channame, Channel_Name(Chan), sizeof(channame));
+		if ( channame[sizeof(channame)-1] != 0 )
+			channame[0] = 0;
+		strncpy(chankey, Channel_Key(Chan), sizeof(chankey));
+		if ( chankey[sizeof(chankey)-1] != 0 )
+			chankey[0] = 0;
+
+		/* Force-join everyone to the channel */
+		for (c = Client_First(); c != NULL; c = Client_Next(c)) {
+			if (Client_Type(c) != CLIENT_USER) continue;
+			if (Channel_IsMemberOf(Chan, c)) continue;
+			/* Generate a fake JOIN event for this user */
+			r.prefix = Client_Mask(c);
+			r.command = "JOIN";
+			r.argc = 2;
+			r.argv[0] = channame;
+			r.argv[1] = chankey;
+			Channel_AddInvite(Chan, r.prefix, true);
+			IRC_JOIN(c, &r);
+		}
 	}
 
 	if (Client_Conn(From) > NONE)

@@ -667,37 +667,20 @@ Channel_Mode(CLIENT *Client, REQUEST *Req, CLIENT *Origin, CHANNEL *Channel)
 			}
 			break;
 		case 'O': /* IRC operators only */
-			if (set) {
-				/* Only IRC operators are allowed to
-				 * set the 'O' channel mode! */
-				if(is_oper || is_machine)
-					x[0] = 'O';
-				else
-					connected = IRC_WriteErrClient(Origin,
-						ERR_NOPRIVILEGES_MSG,
-						Client_ID(Origin));
-			} else if(is_oper || is_machine || is_owner ||
-				  is_admin || is_op)
-				x[0] = 'O';
-			else
-				connected = IRC_WriteErrClient(Origin,
-					ERR_CHANOPRIVSNEEDED_MSG,
-					Client_ID(Origin),
-					Channel_Name(Channel));
-			break;
 		case 'P': /* Persistent channel */
+		case 'U': /* Universal channel */
 			if (set) {
 				/* Only IRC operators are allowed to
-				 * set the 'P' channel mode! */
+				 * set this channel mode! */
 				if(is_oper || is_machine)
-					x[0] = 'P';
+					x[0] = *mode_ptr;
 				else
 					connected = IRC_WriteErrClient(Origin,
 						ERR_NOPRIVILEGES_MSG,
 						Client_ID(Origin));
 			} else if(is_oper || is_machine || is_owner ||
 				  is_admin || is_op)
-				x[0] = 'P';
+				x[0] = *mode_ptr;
 			else
 				connected = IRC_WriteErrClient(Origin,
 					ERR_CHANOPRIVSNEEDED_MSG,
